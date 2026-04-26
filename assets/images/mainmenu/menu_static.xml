@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TextureAtlas imagePath="menu_static.png">
+    <SubTexture name="static0" x="0" y="0" width="1280" height="720"/>
+    <SubTexture name="static1" x="0" y="720" width="1280" height="720"/>
+    <SubTexture name="static2" x="1280" y="0" width="1280" height="720"/>
+    <SubTexture name="static3" x="1280" y="720" width="1280" height="720"/>
+    <SubTexture name="static4" x="2560" y="0" width="1280" height="720"/>
+    <SubTexture name="static5" x="3840" y="0" width="1280" height="720"/>
+    <SubTexture name="static6" x="2560" y="720" width="1280" height="720"/>
+    <SubTexture name="static7" x="3840" y="720" width="1280" height="720"/>
+</TextureAtlas>
