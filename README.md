@@ -1,6 +1,6 @@
 <h1 align="center">Haxe Nights at Freddy's</h1>
 
-This is a Haxe port of Five Nights at Freddy's 1 which brings a similar experience to the original game, featuring modding support via:
+This is a [HaxeFlixel](https://haxeflixel.com/) port of Five Nights at Freddy's 1 which brings a similar experience to the original game, featuring modding support via:
 
 <p align="center">
   <a href="https://polymod.io/">
