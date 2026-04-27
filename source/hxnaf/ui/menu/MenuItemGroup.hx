@@ -1,7 +1,6 @@
 package hxnaf.ui.menu;
 
 import hxnaf.ui.menu.items.BaseMenuItem;
-import flixel.group.FlxSpriteGroup.FlxTypedSpriteGroup;
 
 class MenuItemGroup extends FlxTypedSpriteGroup<BaseMenuItem>
 {

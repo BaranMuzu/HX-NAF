@@ -1,8 +1,8 @@
 package;
 
-import openfl.display.Sprite;
-import hxnaf.InitState;
 import flixel.FlxGame;
+import hxnaf.InitState;
+import openfl.display.Sprite;
 
 class Main extends Sprite
 {

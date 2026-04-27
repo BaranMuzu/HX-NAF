@@ -1,8 +1,8 @@
 package hxnaf.ui.menu.items;
 
+import flixel.FlxSprite;
 import flixel.text.FlxBitmapFont;
 import flixel.text.FlxBitmapText;
-import flixel.FlxSprite;
 
 class ContinueNightMenuItem extends BaseMenuItem
 {

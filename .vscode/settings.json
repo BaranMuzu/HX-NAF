@@ -1,0 +1,19 @@
+{
+  "editor.insertSpaces": true,
+  "editor.tabSize": 2,
+  "haxe.enableExtendedIndentation": true,
+
+  "[haxe]": {
+    "editor.formatOnSave": true,
+    "editor.formatOnPaste": true,
+    "editor.defaultFormatter": "nadako.vshaxe",
+    "editor.codeActionsOnSave": {
+      "source.sortImports": "explicit"
+    }
+  },
+  "[json]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.formatOnPaste": true,
+    "editor.formatOnSave": true
+  }
+}

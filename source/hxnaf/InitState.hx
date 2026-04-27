@@ -1,8 +1,8 @@
 package hxnaf;
 
-import hxnaf.ui.menu.MenuState;
 import flixel.FlxG;
 import flixel.FlxState;
+import hxnaf.ui.menu.MenuState;
 
 class InitState extends FlxState
 {

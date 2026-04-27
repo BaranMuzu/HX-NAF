@@ -1,16 +1,9 @@
 package hxnaf.ui.menu;
 
-import hxnaf.ui.menu.items.ContinueNightMenuItem;
-import hxnaf.ui.menu.items.BaseMenuItem;
-import flixel.FlxG;
-import flixel.FlxSprite;
-import flixel.FlxState;
 import flixel.graphics.frames.FlxAtlasFrames;
-import flixel.sound.FlxSound;
-import flixel.util.FlxTimer;
-import lime.app.Application;
-import openfl.display.BlendMode;
 import hxnaf.ui.menu.NewspaperSubState;
+import hxnaf.ui.menu.items.BaseMenuItem;
+import hxnaf.ui.menu.items.ContinueNightMenuItem;
 
 class MenuState extends FlxState
 {
@@ -39,22 +32,26 @@ class MenuState extends FlxState
 
     freddy = new FlxSprite(0, 0);
     freddy.frames = FlxAtlasFrames.fromSparrow("assets/images/mainmenu/freddy.png", "assets/images/mainmenu/freddy.xml");
-    freddy.animation.frameIndex = 0;
+    freddy.animation.add('idle', [0]);
+    freddy.animation.add('random', [1, 2, 3]);
+    freddy.animation.play('idle', true);
     add(freddy);
 
     freddyAlphaTimer = new FlxTimer();
-    freddyAlphaTimer.start(0, (tmr:FlxTimer) ->
+    freddyAlphaTimer.start(0.3, (_) ->
     {
-      freddy.alpha = FlxG.random.float(0.5, 1);
-      tmr.reset(FlxG.random.float(0.2, 1));
-    });
+      final alpha:Int = ClickteamUtil.exprRandom(250);
+      freddy.alpha = ClickteamUtil.getAlpha(alpha);
+    }, 0);
 
     freddyTweakTimer = new FlxTimer();
-    freddyTweakTimer.start(0, (tmr:FlxTimer) ->
+    freddyTweakTimer.start(0.08, (_) ->
     {
-      // TODO
-      tmr.reset(1);
-    });
+      // `-1` makes it use a random frame!
+      final animName:String = FlxG.random.bool(3) ? 'random' : 'idle';
+      freddy.animation.play(animName, true, false, -1);
+      trace(animName);
+    }, 0);
 
     var menuStatic:FlxSprite = new FlxSprite(0, 0);
     menuStatic.frames = FlxAtlasFrames.fromSparrow("assets/images/mainmenu/menu_static.png", "assets/images/mainmenu/menu_static.xml");
@@ -63,11 +60,11 @@ class MenuState extends FlxState
     add(menuStatic);
 
     staticTimer = new FlxTimer();
-    staticTimer.start(0, (tmr:FlxTimer) ->
+    staticTimer.start(0.09, (_) ->
     {
-      menuStatic.alpha = FlxG.random.float(0.3, 0.5);
-      tmr.reset(FlxG.random.float(0.1, 0.3));
-    });
+      final alpha:Int = 50 + ClickteamUtil.exprRandom(100);
+      menuStatic.alpha = ClickteamUtil.getAlpha(alpha);
+    }, 0);
 
     menuItems = new MenuItemGroup(150, 400);
     createMenuItems();
