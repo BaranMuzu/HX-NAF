@@ -1,15 +1,15 @@
-package hxnaf.ui.menu;
+package hxnaf.ui.title;
 
 import flixel.graphics.frames.FlxAtlasFrames;
-import hxnaf.ui.menu.NewspaperSubState;
-import hxnaf.ui.menu.items.BaseMenuItem;
-import hxnaf.ui.menu.items.ContinueNightMenuItem;
+import hxnaf.ui.AdSubState;
+import hxnaf.ui.title.items.BaseMenuItem;
+import hxnaf.ui.title.items.ContinueNightMenuItem;
 
-class MenuState extends FlxState
+class TitleState extends FlxState
 {
   public function createMenuItems():Void
   {
-    menuItems.add(new BaseMenuItem('newGame', 'NEW_GAME').setConfirmCallback(() -> openSubState(new NewspaperSubState())));
+    menuItems.add(new BaseMenuItem('newGame', 'NEW_GAME').setConfirmCallback(() -> openSubState(new AdSubState())));
     menuItems.add(new ContinueNightMenuItem());
     menuItems.add(new BaseMenuItem('sixthNight', 'SIXTH_NIGHT'));
     menuItems.add(new BaseMenuItem('customNight', 'CUSTOM_NIGHT'));
@@ -50,7 +50,6 @@ class MenuState extends FlxState
       // `-1` makes it use a random frame!
       final animName:String = FlxG.random.bool(3) ? 'random' : 'idle';
       freddy.animation.play(animName, true, false, -1);
-      trace(animName);
     }, 0);
 
     var menuStatic:FlxSprite = new FlxSprite(0, 0);

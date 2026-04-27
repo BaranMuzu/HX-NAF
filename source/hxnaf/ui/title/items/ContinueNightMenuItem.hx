@@ -1,4 +1,4 @@
-package hxnaf.ui.menu.items;
+package hxnaf.ui.title.items;
 
 import flixel.FlxSprite;
 import flixel.text.FlxBitmapFont;

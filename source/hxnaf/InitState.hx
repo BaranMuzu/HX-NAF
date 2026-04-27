@@ -2,7 +2,9 @@ package hxnaf;
 
 import flixel.FlxG;
 import flixel.FlxState;
-import hxnaf.ui.menu.MenuState;
+import flixel.system.FlxSplash;
+import flixel.util.typeLimit.NextState;
+import hxnaf.ui.title.TitleState;
 
 class InitState extends FlxState
 {
@@ -10,11 +12,10 @@ class InitState extends FlxState
   {
     super.create();
 
-    // Unlocked Framerate
-    // TODO: move to an option later
-    FlxG.updateFramerate = 0;
-    FlxG.drawFramerate = 0;
-
-    FlxG.switchState(() -> new MenuState());
+    FlxG.switchState(() ->
+    {
+      var title:NextState = () -> new TitleState();
+      return new FlxSplash(title);
+    });
   }
 }

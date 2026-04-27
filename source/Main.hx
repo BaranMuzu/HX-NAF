@@ -10,7 +10,7 @@ class Main extends Sprite
   {
     super();
 
-    var game:FlxGame = new FlxGame(0, 0, InitState);
+    var game:FlxGame = new FlxGame(0, 0, InitState, 0, 0, true);
     addChild(game);
   }
 }

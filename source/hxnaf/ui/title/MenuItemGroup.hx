@@ -1,6 +1,6 @@
-package hxnaf.ui.menu;
+package hxnaf.ui.title;
 
-import hxnaf.ui.menu.items.BaseMenuItem;
+import hxnaf.ui.title.items.BaseMenuItem;
 
 class MenuItemGroup extends FlxTypedSpriteGroup<BaseMenuItem>
 {
