@@ -53,6 +53,6 @@ class ContinueNightMenuItem extends BaseMenuItem
 
   override function get_height():Float
   {
-    return height + nightText.height;
+    return height + 15;
   }
 }

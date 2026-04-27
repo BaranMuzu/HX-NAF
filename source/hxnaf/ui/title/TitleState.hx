@@ -96,7 +96,7 @@ class TitleState extends FlxState
       }
 
       selectArrow.visible = selectedSprite != null;
-      selectArrow.x = (selectedSprite?.x ?? 0) - 50;
+      selectArrow.x = (selectedSprite?.x ?? 0) - 70;
       selectArrow.y = (selectedSprite?.y ?? 0) + 5;
     }
 

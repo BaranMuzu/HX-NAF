@@ -24,7 +24,14 @@ class MenuItemGroup extends FlxTypedSpriteGroup<BaseMenuItem>
       {
         sprite.y = newY;
         newY += sprite.height;
-        newY += 25;
+        if (sprite.id == 'newGame')
+        {
+          newY += 35;
+        }
+        else
+        {
+          newY += 25;
+        }
       }
 
       dirty = false;
