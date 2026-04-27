@@ -1,11 +1,13 @@
 package hxnaf.ui.menu.items;
 
+import flixel.text.FlxBitmapFont;
+import flixel.text.FlxBitmapText;
 import flixel.FlxSprite;
 
 class ContinueNightMenuItem extends BaseMenuItem
 {
   var nightText:FlxSprite;
-  var numberText:FlxSprite;
+  var numberText:FlxBitmapText;
 
   public function new()
   {
@@ -15,9 +17,9 @@ class ContinueNightMenuItem extends BaseMenuItem
     nightText.loadGraphic('assets/images/mainmenu/texts/Night.png');
 
     // TODO: keep track of nights
-    numberText = new FlxSprite();
-    numberText.loadGraphic('assets/images/numbers/PIXEL_NUMBER/1.png');
-    numberText.setGraphicSize(17, 17);
+    var numberFont:FlxBitmapFont = FlxBitmapFont.fromAngelCode('assets/images/numbers/PIXEL_NUMBER.png', 'assets/images/numbers/PIXEL_NUMBER.fnt');
+    numberText = new FlxBitmapText(0, 0, '1', numberFont);
+    numberText.scale.set(17 / numberFont.size, 17 / numberFont.size);
     numberText.updateHitbox();
 
     for (sprite in [nightText, numberText]) sprite.visible = false;
