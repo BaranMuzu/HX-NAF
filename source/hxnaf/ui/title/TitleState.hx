@@ -19,6 +19,8 @@ class TitleState extends FlxState
   public var freddy:FlxSprite;
   public var selectArrow:FlxSprite;
 
+  var ItemSelectSound:FlxSound = FlxG.sound.load('assets/sounds/blip3.ogg');
+
   var freddyTweakTimer:FlxTimer;
   var freddyAlphaTimer:FlxTimer;
   var staticTimer:FlxTimer;
@@ -27,7 +29,7 @@ class TitleState extends FlxState
   {
     if (FlxG.sound.music == null)
     {
-      FlxG.sound.playMusic("assets/music/darknessmusic.wav", 1, true);
+      FlxG.sound.playMusic("assets/music/darknessmusic.ogg", 1, true);
     }
 
     freddy = new FlxSprite(0, 0);
@@ -91,8 +93,19 @@ class TitleState extends FlxState
       var selectedSprite:Null<BaseMenuItem> = null;
       for (sprite in menuItems.members)
       {
+        var wasSelected = sprite.selected;
+
         sprite.selected = FlxG.mouse.overlaps(sprite);
-        if (sprite.selected) selectedSprite = sprite;
+
+        if (sprite.selected)
+        {
+          selectedSprite = sprite;
+          
+          if (!wasSelected)
+          {
+            ItemSelectSound.play(true);
+          }
+        }
       }
 
       selectArrow.visible = selectedSprite != null;
