@@ -9,10 +9,10 @@ class TitleState extends FlxState
 {
   public function createMenuItems():Void
   {
-    menuItems.add(new BaseMenuItem('newGame', 'NEW_GAME').setConfirmCallback(() -> openSubState(new AdSubState())));
+    menuItems.add(new BaseMenuItem('newGame', 'New Game').setConfirmCallback(() -> openSubState(new AdSubState())));
     menuItems.add(new ContinueNightMenuItem());
-    menuItems.add(new BaseMenuItem('sixthNight', 'SIXTH_NIGHT'));
-    menuItems.add(new BaseMenuItem('customNight', 'CUSTOM_NIGHT'));
+    menuItems.add(new BaseMenuItem('sixthNight', '6th Night'));
+    menuItems.add(new BaseMenuItem('customNight', 'Custom Night'));
   }
 
   public var menuItems:MenuItemGroup;
@@ -20,7 +20,6 @@ class TitleState extends FlxState
   public var selectArrow:FlxSprite;
 
   var ItemSelectSound:FlxSound = FlxG.sound.load('assets/sounds/blip3.ogg');
-
   var freddyTweakTimer:FlxTimer;
   var freddyAlphaTimer:FlxTimer;
   var staticTimer:FlxTimer;
@@ -100,7 +99,7 @@ class TitleState extends FlxState
         if (sprite.selected)
         {
           selectedSprite = sprite;
-          
+
           if (!wasSelected)
           {
             ItemSelectSound.play(true);
@@ -110,7 +109,7 @@ class TitleState extends FlxState
 
       selectArrow.visible = selectedSprite != null;
       selectArrow.x = (selectedSprite?.x ?? 0) - 70;
-      selectArrow.y = (selectedSprite?.y ?? 0) + 5;
+      selectArrow.y = (selectedSprite?.y ?? 0) + 15;
     }
 
     if (FlxG.mouse.justPressed)

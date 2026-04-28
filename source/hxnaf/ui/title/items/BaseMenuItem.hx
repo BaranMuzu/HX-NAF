@@ -1,20 +1,24 @@
 package hxnaf.ui.title.items;
 
-import flixel.FlxSprite;
+import flixel.graphics.frames.FlxBitmapFont;
+import flixel.text.FlxBitmapText;
 
-class BaseMenuItem extends FlxSprite
+class BaseMenuItem extends FlxBitmapText
 {
   public final id:String;
   public var selected(default, set):Bool;
+  public var menuSpacing:Float = 0;
 
   var onConfirm:Null<Void->Void> = null;
 
-  public function new(id:String, path:String)
+  public function new(id:String, text:String)
   {
     this.id = id;
 
-    super();
-    loadGraphic('assets/images/mainmenu/texts/$path.png');
+    var customFont = FlxBitmapFont.fromAngelCode("assets/images/mainmenu/texts/consolas.png", "assets/images/mainmenu/texts/consolas.fnt");
+    super(customFont);
+
+    this.text = text;
   }
 
   public function setConfirmCallback(callback:() -> Void):BaseMenuItem

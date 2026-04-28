@@ -11,7 +11,7 @@ class ContinueNightMenuItem extends BaseMenuItem
 
   public function new()
   {
-    super('continue', 'CONTINUE');
+    super('continue', 'Continue');
 
     nightText = new FlxSprite();
     nightText.loadGraphic('assets/images/mainmenu/texts/Night.png');
@@ -27,7 +27,7 @@ class ContinueNightMenuItem extends BaseMenuItem
 
   override public function draw():Void
   {
-    nightText.setPosition(this.x, this.y + 38);
+    nightText.setPosition(this.x + 5, this.y + 48);
     numberText.setPosition(nightText.x + 75, nightText.y + 1.5);
 
     for (sprite in [nightText, numberText])
@@ -49,10 +49,5 @@ class ContinueNightMenuItem extends BaseMenuItem
     selected = value;
     for (sprite in [nightText, numberText]) sprite.visible = selected;
     return value;
-  }
-
-  override function get_height():Float
-  {
-    return height + 15;
   }
 }

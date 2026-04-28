@@ -23,15 +23,7 @@ class MenuItemGroup extends FlxTypedSpriteGroup<BaseMenuItem>
       for (sprite in group.members)
       {
         sprite.y = newY;
-        newY += sprite.height;
-        if (sprite.id == 'newGame')
-        {
-          newY += 35;
-        }
-        else
-        {
-          newY += 25;
-        }
+        newY += sprite.height + sprite.menuSpacing + 15;
       }
 
       dirty = false;
