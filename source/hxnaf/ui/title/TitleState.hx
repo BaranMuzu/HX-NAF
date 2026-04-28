@@ -16,6 +16,8 @@ class TitleState extends FlxState
   }
 
   public var menuItems:MenuItemGroup;
+  public var allInteractables:Array<BaseMenuItem> = [];
+  public var optionsButton:BaseMenuItem;
   public var freddy:FlxSprite;
   public var selectArrow:FlxSprite;
 
@@ -70,6 +72,13 @@ class TitleState extends FlxState
     createMenuItems();
     add(menuItems);
 
+    optionsButton = new BaseMenuItem('options', 'Options').setConfirmCallback(() -> trace("options test, clickclick"));
+    optionsButton.setPosition(1000, 615);
+    add(optionsButton);
+
+    for (item in menuItems.members) allInteractables.push(item);
+    allInteractables.push(optionsButton);
+
     selectArrow = new FlxSprite(100, 0);
     selectArrow.loadGraphic("assets/images/mainmenu/texts/SET_.png");
     selectArrow.visible = false;
@@ -90,7 +99,7 @@ class TitleState extends FlxState
     if (FlxG.mouse.justMoved)
     {
       var selectedSprite:Null<BaseMenuItem> = null;
-      for (sprite in menuItems.members)
+      for (sprite in allInteractables)
       {
         var wasSelected = sprite.selected;
 
@@ -114,7 +123,7 @@ class TitleState extends FlxState
 
     if (FlxG.mouse.justPressed)
     {
-      for (sprite in menuItems.members)
+      for (sprite in allInteractables)
       {
         if (sprite.selected) sprite.confirm();
       }
