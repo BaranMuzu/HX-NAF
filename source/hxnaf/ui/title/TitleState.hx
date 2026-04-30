@@ -2,6 +2,7 @@ package hxnaf.ui.title;
 
 import flixel.graphics.frames.FlxAtlasFrames;
 import hxnaf.ui.AdSubState;
+import hxnaf.ui.option.OptionsSubState;
 import hxnaf.ui.title.items.BaseMenuItem;
 import hxnaf.ui.title.items.ContinueNightMenuItem;
 
@@ -72,8 +73,12 @@ class TitleState extends FlxState
     createMenuItems();
     add(menuItems);
 
-    optionsButton = new BaseMenuItem('options', 'Options').setConfirmCallback(() -> trace("options test, clickclick"));
-    optionsButton.setPosition(1000, 615);
+    optionsButton = new BaseMenuItem('options', 'Options');
+    optionsButton.setConfirmCallback(() ->
+    {
+      openSubState(new OptionsSubState());
+    });
+    optionsButton.setPosition(FlxG.width - optionsButton.width - 30, 30);
     add(optionsButton);
 
     for (item in menuItems.members) allInteractables.push(item);
@@ -89,6 +94,8 @@ class TitleState extends FlxState
     add(gameTitle);
 
     super.create();
+
+    persistentUpdate = true;
   }
 
   override public function update(elapsed:Float)
@@ -96,36 +103,39 @@ class TitleState extends FlxState
     super.update(elapsed);
 
     // controller support?
-    if (FlxG.mouse.justMoved)
+    if (subState == null)
     {
-      var selectedSprite:Null<BaseMenuItem> = null;
-      for (sprite in allInteractables)
+      if (FlxG.mouse.justMoved)
       {
-        var wasSelected = sprite.selected;
-
-        sprite.selected = FlxG.mouse.overlaps(sprite);
-
-        if (sprite.selected)
+        var selectedSprite:Null<BaseMenuItem> = null;
+        for (sprite in allInteractables)
         {
-          selectedSprite = sprite;
+          var wasSelected = sprite.selected;
 
-          if (!wasSelected)
+          sprite.selected = FlxG.mouse.overlaps(sprite);
+
+          if (sprite.selected)
           {
-            ItemSelectSound.play(true);
+            selectedSprite = sprite;
+
+            if (!wasSelected)
+            {
+              ItemSelectSound.play(true);
+            }
           }
         }
+
+        selectArrow.visible = selectedSprite != null;
+        selectArrow.x = (selectedSprite?.x ?? 0) - 70;
+        selectArrow.y = (selectedSprite?.y ?? 0) + 15;
       }
 
-      selectArrow.visible = selectedSprite != null;
-      selectArrow.x = (selectedSprite?.x ?? 0) - 70;
-      selectArrow.y = (selectedSprite?.y ?? 0) + 15;
-    }
-
-    if (FlxG.mouse.justPressed)
-    {
-      for (sprite in allInteractables)
+      if (FlxG.mouse.justPressed)
       {
-        if (sprite.selected) sprite.confirm();
+        for (sprite in allInteractables)
+        {
+          if (sprite.selected) sprite.confirm();
+        }
       }
     }
   }

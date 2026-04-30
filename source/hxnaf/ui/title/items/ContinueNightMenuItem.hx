@@ -1,23 +1,24 @@
 package hxnaf.ui.title.items;
 
-import flixel.FlxSprite;
 import flixel.text.FlxBitmapFont;
 import flixel.text.FlxBitmapText;
 
 class ContinueNightMenuItem extends BaseMenuItem
 {
-  var nightText:FlxSprite;
+  var nightText:FlxBitmapText;
   var numberText:FlxBitmapText;
 
   public function new()
   {
     super('continue', 'Continue');
 
-    nightText = new FlxSprite();
-    nightText.loadGraphic('assets/images/mainmenu/texts/Night.png');
-
-    // TODO: keep track of nights
+    var consolasFont:FlxBitmapFont = FlxBitmapFont.fromAngelCode('assets/images/mainmenu/texts/consolas.png', 'assets/images/mainmenu/texts/consolas.fnt');
     var numberFont:FlxBitmapFont = FlxBitmapFont.fromAngelCode('assets/images/numbers/PIXEL_NUMBER.png', 'assets/images/numbers/PIXEL_NUMBER.fnt');
+
+    nightText = new FlxBitmapText(0, 0, 'Night', consolasFont);
+    nightText.scale.set(28 / consolasFont.size, 28 / consolasFont.size);
+    nightText.updateHitbox();
+
     numberText = new FlxBitmapText(0, 0, '1', numberFont);
     numberText.scale.set(17 / numberFont.size, 17 / numberFont.size);
     numberText.updateHitbox();
@@ -27,8 +28,13 @@ class ContinueNightMenuItem extends BaseMenuItem
 
   override public function draw():Void
   {
-    nightText.setPosition(this.x + 5, this.y + 48);
-    numberText.setPosition(nightText.x + 75, nightText.y + 1.5);
+    nightText.setPosition(this.x + 5, this.y + 43);
+    numberText.setPosition(nightText.x + nightText.width + 10, nightText.y + 7);
+
+    nightText.scrollFactor.copyFrom(this.scrollFactor);
+    nightText.cameras = this.cameras;
+    numberText.scrollFactor.copyFrom(this.scrollFactor);
+    numberText.cameras = this.cameras;
 
     for (sprite in [nightText, numberText])
     {
@@ -40,7 +46,6 @@ class ContinueNightMenuItem extends BaseMenuItem
 
   override public function confirm():Void
   {
-    // TODO: implement
     trace('TODO');
   }
 
