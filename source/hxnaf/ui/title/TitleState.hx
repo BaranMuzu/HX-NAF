@@ -31,12 +31,49 @@ class TitleState extends FlxState
   var staticTimer:FlxTimer;
   var inOptionsMenu:Bool = false;
 
-  public function createMenuItems():Void
+  public function initMenuItems():Void
   {
+    menuItems = new MenuItemGroup(150, 400);
+
     menuItems.add(new BaseMenuItem('newGame', 'New Game').setConfirmCallback(() -> openSubState(new AdSubState())));
     menuItems.add(new ContinueNightMenuItem());
     menuItems.add(new BaseMenuItem('sixthNight', '6th Night'));
     menuItems.add(new BaseMenuItem('customNight', 'Custom Night'));
+    add(menuItems);
+
+    optionsButton = new BaseMenuItem('options', 'Options');
+    optionsButton.setConfirmCallback(() -> toggleMenu(true));
+    optionsButton.setPosition(FlxG.width - optionsButton.width - 30, 30);
+    add(optionsButton);
+
+    for (item in menuItems.members) mainInteractables.push(item);
+    mainInteractables.push(optionsButton);
+  }
+
+  public function initOptionItems():Void
+  {
+    optionsGroup = new OptionItemGroup(150, 400);
+
+    // TODO ,add the actual settings
+    var boolTest1 = new CheckboxOptionItem('boolTest', 'Evil Mode', 'Dexter 1', false);
+    var valueTest1 = new NumberOptionItem('numTest', 'Volume', 'num test 1 haha', 0, 100, 50, 10);
+    var valueTest2 = new ValueOptionItem('strTest', 'Evilness', 'wtf is this!!', ['Normal', 'Evil', 'TRUE EVIL'], 1);
+
+    var optionItemList:Array<BaseMenuItem> = [boolTest1, valueTest1, valueTest2];
+    for (setting in optionItemList)
+    {
+      optionsGroup.add(setting);
+      optionsInteractables.push(setting);
+    }
+    add(optionsGroup);
+    optionsGroup.visible = false;
+
+    backButton = new BaseMenuItem('back', 'Back');
+    backButton.setPosition(FlxG.width - backButton.width - 30, 30);
+    backButton.setConfirmCallback(() -> toggleMenu(false));
+    backButton.visible = false;
+    add(backButton);
+    optionsInteractables.push(backButton);
   }
 
   override public function create():Void
@@ -82,40 +119,8 @@ class TitleState extends FlxState
       menuStatic.alpha = ClickteamUtil.getAlpha(alpha);
     }, 0);
 
-    menuItems = new MenuItemGroup(150, 400);
-    createMenuItems();
-    add(menuItems);
-
-    optionsButton = new BaseMenuItem('options', 'Options');
-    optionsButton.setConfirmCallback(() -> toggleMenu(true));
-    optionsButton.setPosition(FlxG.width - optionsButton.width - 30, 30);
-    add(optionsButton);
-
-    for (item in menuItems.members) mainInteractables.push(item);
-    mainInteractables.push(optionsButton);
-
-    optionsGroup = new OptionItemGroup(150, 400);
-
-    // TODO ,add the actual settings
-    var boolTest1 = new CheckboxOptionItem('boolTest', 'Evil Mode', 'Dexter 1', false);
-    var valueTest1 = new NumberOptionItem('numTest', 'Volume', 'num test 1 haha', 0, 100, 50, 10);
-    var valueTest2 = new ValueOptionItem('strTest', 'Evilness', 'wtf is this!!', ['Normal', 'Evil', 'TRUE EVIL'], 1);
-
-    var optionItemList:Array<BaseMenuItem> = [boolTest1, valueTest1, valueTest2];
-    for (setting in optionItemList)
-    {
-      optionsGroup.add(setting);
-      optionsInteractables.push(setting);
-    }
-    add(optionsGroup);
-    optionsGroup.visible = false;
-
-    backButton = new BaseMenuItem('back', 'Back');
-    backButton.setPosition(FlxG.width - backButton.width - 30, 30);
-    backButton.setConfirmCallback(() -> toggleMenu(false));
-    backButton.visible = false;
-    add(backButton);
-    optionsInteractables.push(backButton);
+    initMenuItems();
+    initOptionItems();
 
     descText = new FlxBitmapText(0, FlxG.height - 150, "", consolasFont);
     descText.scale.set(30 / consolasFont.size, 30 / consolasFont.size);
