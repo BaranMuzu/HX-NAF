@@ -1,14 +1,13 @@
 package hxnaf.ui.option;
 
-import flixel.FlxG;
 import flixel.group.FlxSpriteGroup.FlxTypedSpriteGroup;
 import hxnaf.ui.title.items.BaseMenuItem;
 
 class OptionItemGroup extends FlxTypedSpriteGroup<BaseMenuItem>
 {
-  public function new()
+  public function new(?x:Float = 0, ?y:Float = 0)
   {
-    super();
+    super(x, y);
   }
 
   override function preAdd(sprite:BaseMenuItem):Void
@@ -21,21 +20,14 @@ class OptionItemGroup extends FlxTypedSpriteGroup<BaseMenuItem>
   {
     if (dirty)
     {
-      var totalHeight:Float = 0;
-
-      for (i in 0...group.members.length)
-      {
-        totalHeight += group.members[i].height;
-        if (i < group.members.length - 1) totalHeight += 40;
-      }
-
-      var yPosition:Float = (FlxG.height - totalHeight) / 2;
+      var newY:Float = this.y;
 
       for (sprite in group.members)
       {
-        sprite.x = (FlxG.width / 2) - 150;
-        sprite.y = yPosition;
-        yPosition += sprite.height + 40;
+        sprite.x = this.x;
+        sprite.y = newY;
+
+        newY += sprite.height + sprite.itemSpacing + 25;
       }
 
       dirty = false;

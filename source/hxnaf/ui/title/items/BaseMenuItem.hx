@@ -7,6 +7,7 @@ class BaseMenuItem extends FlxBitmapText
 {
   public final id:String;
   public var selected(default, set):Bool;
+  public var description:String = "";
   public var itemSpacing:Float = 0;
 
   var onConfirm:Null<Void->Void> = null;

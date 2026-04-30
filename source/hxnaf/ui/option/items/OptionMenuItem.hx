@@ -8,9 +8,10 @@ class OptionMenuItem extends BaseMenuItem
 {
   public var optionFont:FlxBitmapFont;
 
-  public function new(id:String, text:String)
+  public function new(id:String, text:String, description:String = "")
   {
     super(id, text);
+    this.description = description;
     optionFont = FlxBitmapFont.fromAngelCode('assets/images/mainmenu/texts/consolas.png', 'assets/images/mainmenu/texts/consolas.fnt');
   }
 }
@@ -21,9 +22,9 @@ class CheckboxOptionItem extends OptionMenuItem
 
   var stateText:FlxBitmapText;
 
-  public function new(id:String, text:String, defaultValue:Bool = false)
+  public function new(id:String, text:String, description:String = "", defaultValue:Bool = false)
   {
-    super(id, text);
+    super(id, text, description);
     this.isChecked = defaultValue;
 
     stateText = new FlxBitmapText(optionFont);
@@ -69,9 +70,9 @@ class ValueOptionItem extends OptionMenuItem
   public var options:Array<String>;
   public var curIndex:Int = 0;
 
-  public function new(id:String, text:String, options:Array<String>, defaultIndex:Int = 0)
+  public function new(id:String, text:String, description:String = "", options:Array<String>, defaultIndex:Int = 0)
   {
-    super(id, text);
+    super(id, text, description);
     this.options = options;
     this.curIndex = defaultIndex;
 
@@ -109,9 +110,9 @@ class NumberOptionItem extends OptionMenuItem
 
   var valueText:FlxBitmapText;
 
-  public function new(id:String, text:String, min:Int, max:Int, defaultValue:Int, step:Int = 1)
+  public function new(id:String, text:String, description:String = "", min:Int, max:Int, defaultValue:Int, step:Int = 1)
   {
-    super(id, text);
+    super(id, text, description);
     this.minValue = min;
     this.maxValue = max;
     this.curValue = defaultValue;

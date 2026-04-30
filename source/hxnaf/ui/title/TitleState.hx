@@ -1,13 +1,36 @@
 package hxnaf.ui.title;
 
-import flixel.graphics.frames.FlxAtlasFrames;
 import hxnaf.ui.AdSubState;
-import hxnaf.ui.option.OptionsSubState;
+import hxnaf.ui.option.OptionItemGroup;
+import hxnaf.ui.option.items.OptionMenuItem.CheckboxOptionItem;
+import hxnaf.ui.option.items.OptionMenuItem.NumberOptionItem;
+import hxnaf.ui.option.items.OptionMenuItem.ValueOptionItem;
 import hxnaf.ui.title.items.BaseMenuItem;
 import hxnaf.ui.title.items.ContinueNightMenuItem;
 
 class TitleState extends FlxState
 {
+  // UI
+  public var freddy:FlxSprite;
+  public var menuStatic:FlxSprite;
+  public var gameTitle:FlxSprite;
+  public var selectArrow:FlxSprite;
+  public var descText:FlxBitmapText;
+  // ITEMS
+  public var menuItems:MenuItemGroup;
+  public var optionsGroup:OptionItemGroup;
+  public var optionsButton:BaseMenuItem;
+  public var backButton:BaseMenuItem;
+  public var mainInteractables:Array<BaseMenuItem> = [];
+  public var optionsInteractables:Array<BaseMenuItem> = [];
+
+  // SYSTEM?
+  var ItemSelectSound:FlxSound = FlxG.sound.load('assets/sounds/blip3.ogg');
+  var freddyTweakTimer:FlxTimer;
+  var freddyAlphaTimer:FlxTimer;
+  var staticTimer:FlxTimer;
+  var inOptionsMenu:Bool = false;
+
   public function createMenuItems():Void
   {
     menuItems.add(new BaseMenuItem('newGame', 'New Game').setConfirmCallback(() -> openSubState(new AdSubState())));
@@ -16,19 +39,10 @@ class TitleState extends FlxState
     menuItems.add(new BaseMenuItem('customNight', 'Custom Night'));
   }
 
-  public var menuItems:MenuItemGroup;
-  public var allInteractables:Array<BaseMenuItem> = [];
-  public var optionsButton:BaseMenuItem;
-  public var freddy:FlxSprite;
-  public var selectArrow:FlxSprite;
-
-  var ItemSelectSound:FlxSound = FlxG.sound.load('assets/sounds/blip3.ogg');
-  var freddyTweakTimer:FlxTimer;
-  var freddyAlphaTimer:FlxTimer;
-  var staticTimer:FlxTimer;
-
   override public function create():Void
   {
+    var consolasFont = FlxBitmapFont.fromAngelCode('assets/images/mainmenu/texts/consolas.png', 'assets/images/mainmenu/texts/consolas.fnt');
+
     if (FlxG.sound.music == null)
     {
       FlxG.sound.playMusic("assets/music/darknessmusic.ogg", 1, true);
@@ -51,12 +65,11 @@ class TitleState extends FlxState
     freddyTweakTimer = new FlxTimer();
     freddyTweakTimer.start(0.08, (_) ->
     {
-      // `-1` makes it use a random frame!
       final animName:String = FlxG.random.bool(3) ? 'random' : 'idle';
       freddy.animation.play(animName, true, false, -1);
     }, 0);
 
-    var menuStatic:FlxSprite = new FlxSprite(0, 0);
+    menuStatic = new FlxSprite(0, 0);
     menuStatic.frames = FlxAtlasFrames.fromSparrow("assets/images/mainmenu/menu_static.png", "assets/images/mainmenu/menu_static.xml");
     menuStatic.animation.addByPrefix("static", "static", 30, true);
     menuStatic.animation.play("static");
@@ -74,65 +87,115 @@ class TitleState extends FlxState
     add(menuItems);
 
     optionsButton = new BaseMenuItem('options', 'Options');
-    optionsButton.setConfirmCallback(() ->
-    {
-      openSubState(new OptionsSubState());
-    });
+    optionsButton.setConfirmCallback(() -> toggleMenu(true));
     optionsButton.setPosition(FlxG.width - optionsButton.width - 30, 30);
     add(optionsButton);
 
-    for (item in menuItems.members) allInteractables.push(item);
-    allInteractables.push(optionsButton);
+    for (item in menuItems.members) mainInteractables.push(item);
+    mainInteractables.push(optionsButton);
+
+    optionsGroup = new OptionItemGroup(150, 400);
+
+    // TODO ,add the actual settings
+    var boolTest1 = new CheckboxOptionItem('boolTest', 'Evil Mode', 'Dexter 1', false);
+    var valueTest1 = new NumberOptionItem('numTest', 'Volume', 'num test 1 haha', 0, 100, 50, 10);
+    var valueTest2 = new ValueOptionItem('strTest', 'Evilness', 'wtf is this!!', ['Normal', 'Evil', 'TRUE EVIL'], 1);
+
+    var optionItemList:Array<BaseMenuItem> = [boolTest1, valueTest1, valueTest2];
+    for (setting in optionItemList)
+    {
+      optionsGroup.add(setting);
+      optionsInteractables.push(setting);
+    }
+    add(optionsGroup);
+    optionsGroup.visible = false;
+
+    backButton = new BaseMenuItem('back', 'Back');
+    backButton.setPosition(FlxG.width - backButton.width - 30, 30);
+    backButton.setConfirmCallback(() -> toggleMenu(false));
+    backButton.visible = false;
+    add(backButton);
+    optionsInteractables.push(backButton);
+
+    descText = new FlxBitmapText(0, FlxG.height - 150, "", consolasFont);
+    descText.scale.set(30 / consolasFont.size, 30 / consolasFont.size);
+    descText.updateHitbox();
+    add(descText);
+    descText.visible = false;
 
     selectArrow = new FlxSprite(100, 0);
     selectArrow.loadGraphic("assets/images/mainmenu/texts/SET_.png");
     selectArrow.visible = false;
     add(selectArrow);
 
-    var gameTitle:FlxSprite = new FlxSprite(150, 80);
+    gameTitle = new FlxSprite(150, 80);
     gameTitle.loadGraphic("assets/images/mainmenu/texts/FIVE_GAME_TITLE.png");
     add(gameTitle);
 
     super.create();
-
     persistentUpdate = true;
+  }
+
+  function toggleMenu(showOptions:Bool):Void
+  {
+    inOptionsMenu = showOptions;
+    menuItems.visible = !inOptionsMenu;
+    optionsButton.visible = !inOptionsMenu;
+
+    optionsGroup.visible = inOptionsMenu;
+    backButton.visible = inOptionsMenu;
+    descText.visible = inOptionsMenu;
+
+    selectArrow.visible = false;
+    descText.text = "";
   }
 
   override public function update(elapsed:Float)
   {
     super.update(elapsed);
 
-    // controller support?
     if (subState == null)
     {
+      var curList = inOptionsMenu ? optionsInteractables : mainInteractables;
+
       if (FlxG.mouse.justMoved)
       {
-        var selectedSprite:Null<BaseMenuItem> = null;
-        for (sprite in allInteractables)
+        var curHover:Null<BaseMenuItem> = null;
+
+        for (sprite in curList)
         {
           var wasSelected = sprite.selected;
-
           sprite.selected = FlxG.mouse.overlaps(sprite);
 
           if (sprite.selected)
           {
-            selectedSprite = sprite;
-
-            if (!wasSelected)
-            {
-              ItemSelectSound.play(true);
-            }
+            curHover = sprite;
+            if (!wasSelected) ItemSelectSound.play(true);
           }
         }
 
-        selectArrow.visible = selectedSprite != null;
-        selectArrow.x = (selectedSprite?.x ?? 0) - 70;
-        selectArrow.y = (selectedSprite?.y ?? 0) + 15;
+        if (curHover != null)
+        {
+          selectArrow.visible = true;
+          selectArrow.x = curHover.x - 70;
+          selectArrow.y = curHover.y + 15;
+
+          if (inOptionsMenu)
+          {
+            descText.text = curHover.description;
+            descText.screenCenter(X);
+          }
+        }
+        else
+        {
+          selectArrow.visible = false;
+          if (inOptionsMenu) descText.text = "";
+        }
       }
 
       if (FlxG.mouse.justPressed)
       {
-        for (sprite in allInteractables)
+        for (sprite in curList)
         {
           if (sprite.selected) sprite.confirm();
         }
