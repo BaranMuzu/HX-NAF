@@ -27,11 +27,13 @@ class TitleState extends FlxState
 
   // SYSTEM
   var ItemSelectSound:FlxSound = FlxG.sound.load('assets/sounds/blip3.ogg');
-  var freddyTweakTimer:FlxTimer;
-  var freddyAlphaTimer:FlxTimer;
   var staticTimer:FlxTimer;
   var inOptionsMenu:Bool = false;
-  // MAYBE TODO : ADD A "TWEAKTIMER" SO BONNIE'S TWEAK SHOULD BE MORE NOTICABLE
+
+  var titleCharTweakTimer:FlxTimer;
+  var titleCharAlphaTimer:FlxTimer;
+  var titleCharCache:Map<String, FlxAtlasFrames> = new Map();
+  var titleCharTweakFrames:Int = 0;
 
   public function initMenuItems():Void
   {
@@ -90,25 +92,39 @@ class TitleState extends FlxState
     var charsToCache:Array<String> = ['freddy', 'bonnie'];
     for (char in charsToCache)
     {
-      FlxG.bitmap.add('assets/images/mainmenu/${char}.png');
+      var graphic = FlxG.bitmap.add('assets/images/mainmenu/${char}.png');
+      graphic.persist = true;
+      titleCharCache.set(char, FlxAtlasFrames.fromSparrow(graphic, 'assets/images/mainmenu/${char}.xml'));
     }
 
     titleChar = new FlxSprite(0, 0);
     add(titleChar);
     changeTitleChar('freddy');
 
-    freddyAlphaTimer = new FlxTimer();
-    freddyAlphaTimer.start(0.3, (_) ->
+    titleCharAlphaTimer = new FlxTimer();
+    titleCharAlphaTimer.start(0.3, (_) ->
     {
       final alpha:Int = ClickteamUtil.exprRandom(250);
       titleChar.alpha = ClickteamUtil.getAlpha(alpha);
     }, 0);
 
-    freddyTweakTimer = new FlxTimer();
-    freddyTweakTimer.start(0.08, (_) ->
+    titleCharTweakTimer = new FlxTimer();
+    titleCharTweakTimer.start(0.08, (_) ->
     {
-      final animName:String = FlxG.random.bool(3) ? 'random' : 'idle';
-      titleChar.animation.play(animName, true, false, -1);
+      if (titleCharTweakFrames > 0)
+      {
+        titleCharTweakFrames--;
+        titleChar.animation.play('random', true, false, -1);
+      }
+      else if (FlxG.random.bool(3))
+      {
+        titleCharTweakFrames = FlxG.random.int(2, 4);
+        titleChar.animation.play('random', true, false, -1);
+      }
+      else
+      {
+        titleChar.animation.play('idle', true);
+      }
     }, 0);
 
     menuStatic = new FlxSprite(0, 0);
@@ -224,10 +240,17 @@ class TitleState extends FlxState
   }
 
   function changeTitleChar(char:String):Void
-  {
-    titleChar.frames = FlxAtlasFrames.fromSparrow('assets/images/mainmenu/${char}.png', 'assets/images/mainmenu/${char}.xml');
-    titleChar.animation.add('idle', [0]);
-    titleChar.animation.add('random', [1, 2, 3]);
-    titleChar.animation.play('idle', true);
-  }
+    {
+      if (!titleCharCache.exists(char))
+      {
+        var graphic = FlxG.bitmap.add('assets/images/mainmenu/${char}.png');
+        graphic.persist = true;
+        titleCharCache.set(char, FlxAtlasFrames.fromSparrow(graphic, 'assets/images/mainmenu/${char}.xml'));
+      }
+
+      titleChar.frames = titleCharCache.get(char);
+      titleChar.animation.add('idle', [0]);
+      titleChar.animation.add('random', [1, 2, 3]);
+      titleChar.animation.play('idle', true);
+    }
 }
