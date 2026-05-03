@@ -11,11 +11,12 @@ import hxnaf.ui.title.items.ContinueNightMenuItem;
 class TitleState extends FlxState
 {
   // UI
-  public var freddy:FlxSprite;
+  public var titleChar:FlxSprite;
   public var menuStatic:FlxSprite;
   public var gameTitle:FlxSprite;
   public var selectArrow:FlxSprite;
   public var descText:FlxBitmapText;
+
   // ITEMS
   public var menuItems:MenuItemGroup;
   public var optionsGroup:OptionItemGroup;
@@ -24,12 +25,13 @@ class TitleState extends FlxState
   public var mainInteractables:Array<BaseMenuItem> = [];
   public var optionsInteractables:Array<BaseMenuItem> = [];
 
-  // SYSTEM?
+  // SYSTEM
   var ItemSelectSound:FlxSound = FlxG.sound.load('assets/sounds/blip3.ogg');
   var freddyTweakTimer:FlxTimer;
   var freddyAlphaTimer:FlxTimer;
   var staticTimer:FlxTimer;
   var inOptionsMenu:Bool = false;
+  // MAYBE TODO : ADD A "TWEAKTIMER" SO BONNIE'S TWEAK SHOULD BE MORE NOTICABLE
 
   public function initMenuItems():Void
   {
@@ -85,25 +87,28 @@ class TitleState extends FlxState
       FlxG.sound.playMusic("assets/music/darknessmusic.ogg", 1, true);
     }
 
-    freddy = new FlxSprite(0, 0);
-    freddy.frames = FlxAtlasFrames.fromSparrow("assets/images/mainmenu/freddy.png", "assets/images/mainmenu/freddy.xml");
-    freddy.animation.add('idle', [0]);
-    freddy.animation.add('random', [1, 2, 3]);
-    freddy.animation.play('idle', true);
-    add(freddy);
+    var charsToCache:Array<String> = ['freddy', 'bonnie'];
+    for (char in charsToCache)
+    {
+      FlxG.bitmap.add('assets/images/mainmenu/${char}.png');
+    }
+
+    titleChar = new FlxSprite(0, 0);
+    add(titleChar);
+    changeTitleChar('freddy');
 
     freddyAlphaTimer = new FlxTimer();
     freddyAlphaTimer.start(0.3, (_) ->
     {
       final alpha:Int = ClickteamUtil.exprRandom(250);
-      freddy.alpha = ClickteamUtil.getAlpha(alpha);
+      titleChar.alpha = ClickteamUtil.getAlpha(alpha);
     }, 0);
 
     freddyTweakTimer = new FlxTimer();
     freddyTweakTimer.start(0.08, (_) ->
     {
       final animName:String = FlxG.random.bool(3) ? 'random' : 'idle';
-      freddy.animation.play(animName, true, false, -1);
+      titleChar.animation.play(animName, true, false, -1);
     }, 0);
 
     menuStatic = new FlxSprite(0, 0);
@@ -144,6 +149,16 @@ class TitleState extends FlxState
   function toggleMenu(showOptions:Bool):Void
   {
     inOptionsMenu = showOptions;
+
+    if (inOptionsMenu)
+    {
+      changeTitleChar('bonnie');
+    }
+    else
+    {
+      changeTitleChar('freddy');
+    }
+
     menuItems.visible = !inOptionsMenu;
     optionsButton.visible = !inOptionsMenu;
 
@@ -206,5 +221,13 @@ class TitleState extends FlxState
         }
       }
     }
+  }
+
+  function changeTitleChar(char:String):Void
+  {
+    titleChar.frames = FlxAtlasFrames.fromSparrow('assets/images/mainmenu/${char}.png', 'assets/images/mainmenu/${char}.xml');
+    titleChar.animation.add('idle', [0]);
+    titleChar.animation.add('random', [1, 2, 3]);
+    titleChar.animation.play('idle', true);
   }
 }
