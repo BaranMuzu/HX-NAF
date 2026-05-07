@@ -1,84 +1,61 @@
 package hxnaf.ui.title;
 
 import hxnaf.ui.AdSubState;
+import hxnaf.ui.option.DescriptionToolTip;
 import hxnaf.ui.option.OptionItemGroup;
+import hxnaf.ui.option.items.CategoryOptionItem;
 import hxnaf.ui.option.items.OptionMenuItem.CheckboxOptionItem;
 import hxnaf.ui.option.items.OptionMenuItem.NumberOptionItem;
 import hxnaf.ui.option.items.OptionMenuItem.ValueOptionItem;
+import hxnaf.ui.option.items.OptionMenuItem;
 import hxnaf.ui.title.items.BaseMenuItem;
 import hxnaf.ui.title.items.ContinueNightMenuItem;
 
 class TitleState extends FlxState
 {
-  // UI
+  /** til look i am trying to adapt your comment style :]-
+   * UI & Visuals
+   */
   public var titleChar:FlxSprite;
   public var menuStatic:FlxSprite;
   public var gameTitle:FlxSprite;
   public var selectArrow:FlxSprite;
-  public var descText:FlxBitmapText;
+  public var descToolTip:DescriptionToolTip;
 
-  // ITEMS
+  /**
+   * Menus & Buttons
+   */
   public var menuItems:MenuItemGroup;
   public var optionsGroup:OptionItemGroup;
   public var optionsButton:BaseMenuItem;
   public var backButton:BaseMenuItem;
+
+  /**
+   * Clickables (Mouse stuff)
+   */
   public var mainInteractables:Array<BaseMenuItem> = [];
   public var optionsInteractables:Array<BaseMenuItem> = [];
+  var rootOptionItems:Array<OptionMenuItem> = [];
 
-  // SYSTEM
-  var ItemSelectSound:FlxSound = FlxG.sound.load('assets/sounds/blip3.ogg');
-  var staticTimer:FlxTimer;
+  /**
+   * Menu States (Where is the player?)
+   */
   var inOptionsMenu:Bool = false;
+  var inSubCategory:Bool = false;
 
+  /**
+   * Sounds
+   */
+  var ItemSelectSound:FlxSound = FlxG.sound.load('assets/sounds/blip3.ogg');
+
+  /**
+   * Timers & Background Magic
+   */
+  var staticTimer:FlxTimer;
   var titleCharTweakTimer:FlxTimer;
   var titleCharAlphaTimer:FlxTimer;
   var titleCharCache:Map<String, FlxAtlasFrames> = new Map();
   var titleCharTweakFrames:Int = 0;
-
-  public function initMenuItems():Void
-  {
-    menuItems = new MenuItemGroup(150, 400);
-
-    menuItems.add(new BaseMenuItem('newGame', 'New Game').setConfirmCallback(() -> openSubState(new AdSubState())));
-    menuItems.add(new ContinueNightMenuItem());
-    menuItems.add(new BaseMenuItem('sixthNight', '6th Night'));
-    menuItems.add(new BaseMenuItem('customNight', 'Custom Night'));
-    add(menuItems);
-
-    optionsButton = new BaseMenuItem('options', 'Options');
-    optionsButton.setConfirmCallback(() -> toggleMenu(true));
-    optionsButton.setPosition(FlxG.width - optionsButton.width - 30, 30);
-    add(optionsButton);
-
-    for (item in menuItems.members) mainInteractables.push(item);
-    mainInteractables.push(optionsButton);
-  }
-
-  public function initOptionItems():Void
-  {
-    optionsGroup = new OptionItemGroup(150, 400);
-
-    // TODO ,add the actual settings
-    var boolTest1 = new CheckboxOptionItem('boolTest', 'Evil Mode', 'Dexter 1', false);
-    var valueTest1 = new NumberOptionItem('numTest', 'Volume', 'num test 1 haha', 0, 100, 50, 10);
-    var valueTest2 = new ValueOptionItem('strTest', 'Evilness', 'wtf is this!!', ['Normal', 'Evil', 'TRUE EVIL'], 1);
-
-    var optionItemList:Array<BaseMenuItem> = [boolTest1, valueTest1, valueTest2];
-    for (setting in optionItemList)
-    {
-      optionsGroup.add(setting);
-      optionsInteractables.push(setting);
-    }
-    add(optionsGroup);
-    optionsGroup.visible = false;
-
-    backButton = new BaseMenuItem('back', 'Back');
-    backButton.setPosition(FlxG.width - backButton.width - 30, 30);
-    backButton.setConfirmCallback(() -> toggleMenu(false));
-    backButton.visible = false;
-    add(backButton);
-    optionsInteractables.push(backButton);
-  }
 
   override public function create():Void
   {
@@ -140,14 +117,8 @@ class TitleState extends FlxState
       menuStatic.alpha = ClickteamUtil.getAlpha(alpha);
     }, 0);
 
-    initMenuItems();
-    initOptionItems();
-
-    descText = new FlxBitmapText(0, FlxG.height - 150, "", consolasFont);
-    descText.scale.set(30 / consolasFont.size, 30 / consolasFont.size);
-    descText.updateHitbox();
-    add(descText);
-    descText.visible = false;
+    descToolTip = new DescriptionToolTip();
+    add(descToolTip);
 
     selectArrow = new FlxSprite(100, 0);
     selectArrow.loadGraphic("assets/images/mainmenu/texts/SET_.png");
@@ -158,13 +129,112 @@ class TitleState extends FlxState
     gameTitle.loadGraphic("assets/images/mainmenu/texts/FIVE_GAME_TITLE.png");
     add(gameTitle);
 
+    initMenuItems();
+    initOptionItems();
+
     super.create();
     persistentUpdate = true;
+  }
+
+  override public function update(elapsed:Float)
+  {
+    super.update(elapsed);
+
+    if (subState == null)
+    {
+      var curList = inOptionsMenu ? optionsInteractables : mainInteractables;
+
+      var curHover:Null<BaseMenuItem> = null;
+
+      for (sprite in curList)
+      {
+        var wasSelected = sprite.selected;
+        sprite.selected = FlxG.mouse.overlaps(sprite);
+
+        if (sprite.selected)
+        {
+          curHover = sprite;
+          if (!wasSelected) ItemSelectSound.play(true);
+        }
+      }
+
+      if (curHover != null)
+      {
+        selectArrow.visible = true;
+        selectArrow.x = curHover.x - 70;
+        selectArrow.y = curHover.y + 15;
+
+        if (inOptionsMenu)
+        {
+          descToolTip.updateText(curHover.description);
+        }
+      }
+      else
+      {
+        selectArrow.visible = false;
+        if (inOptionsMenu) descToolTip.updateText("");
+      }
+
+      if (FlxG.mouse.justPressed)
+      {
+        for (sprite in curList)
+        {
+          if (sprite.selected) sprite.confirm();
+        }
+      }
+    }
+  }
+
+  public function initMenuItems():Void
+  {
+    menuItems = new MenuItemGroup(150, 400);
+
+    menuItems.add(new BaseMenuItem('newGame', 'New Game').setConfirmCallback(() -> openSubState(new AdSubState())));
+    menuItems.add(new ContinueNightMenuItem());
+    menuItems.add(new BaseMenuItem('sixthNight', '6th Night'));
+    menuItems.add(new BaseMenuItem('customNight', 'Custom Night'));
+    add(menuItems);
+
+    optionsButton = new BaseMenuItem('options', 'Options');
+    optionsButton.setConfirmCallback(() -> toggleMenu(true));
+    optionsButton.setPosition(FlxG.width - optionsButton.width - 30, 30);
+    add(optionsButton);
+
+    for (item in menuItems.members) mainInteractables.push(item);
+    mainInteractables.push(optionsButton);
+  }
+
+  public function initOptionItems():Void
+  {
+    optionsGroup = new OptionItemGroup(150, 400);
+    add(optionsGroup);
+    optionsGroup.visible = false;
+
+    var boolTest1 = new CheckboxOptionItem('boolTest', 'Evil Mode', 'Dexter 1', false);
+    var valueTest1 = new NumberOptionItem('numTest', 'Volume', 'num test 1 haha', 0, 100, 50, 10);
+    var valueTest2 = new ValueOptionItem('strTest', 'Evilness', 'wtf is this!!', ['Normal', 'Evil', 'TRUE EVIL'], 1);
+
+    var gameplayCat = new CategoryOptionItem('catGame', 'Gameplay', 'Gameplay Settings', [boolTest1, valueTest2]);
+    var audioCat = new CategoryOptionItem('catAudio', 'Audio', 'Audio Settings', [valueTest1]);
+
+    gameplayCat.setConfirmCallback(() -> loadOptionPage(gameplayCat.children));
+    audioCat.setConfirmCallback(() -> loadOptionPage(audioCat.children));
+
+    rootOptionItems = [gameplayCat, audioCat];
+
+    backButton = new BaseMenuItem('back', 'Back');
+    backButton.setPosition(FlxG.width - backButton.width - 30, 30);
+    backButton.setConfirmCallback(() -> handleBackButton());
+    backButton.visible = false;
+    add(backButton);
+
+    loadOptionPage(rootOptionItems, true);
   }
 
   function toggleMenu(showOptions:Bool):Void
   {
     inOptionsMenu = showOptions;
+    resetHover();
 
     if (inOptionsMenu)
     {
@@ -180,77 +250,70 @@ class TitleState extends FlxState
 
     optionsGroup.visible = inOptionsMenu;
     backButton.visible = inOptionsMenu;
-    descText.visible = inOptionsMenu;
 
     selectArrow.visible = false;
-    descText.text = "";
-  }
-
-  override public function update(elapsed:Float)
-  {
-    super.update(elapsed);
-
-    if (subState == null)
+    
+    if (!inOptionsMenu)
     {
-      var curList = inOptionsMenu ? optionsInteractables : mainInteractables;
-
-      if (FlxG.mouse.justMoved)
-      {
-        var curHover:Null<BaseMenuItem> = null;
-
-        for (sprite in curList)
-        {
-          var wasSelected = sprite.selected;
-          sprite.selected = FlxG.mouse.overlaps(sprite);
-
-          if (sprite.selected)
-          {
-            curHover = sprite;
-            if (!wasSelected) ItemSelectSound.play(true);
-          }
-        }
-
-        if (curHover != null)
-        {
-          selectArrow.visible = true;
-          selectArrow.x = curHover.x - 70;
-          selectArrow.y = curHover.y + 15;
-
-          if (inOptionsMenu)
-          {
-            descText.text = curHover.description;
-            descText.screenCenter(X);
-          }
-        }
-        else
-        {
-          selectArrow.visible = false;
-          if (inOptionsMenu) descText.text = "";
-        }
-      }
-
-      if (FlxG.mouse.justPressed)
-      {
-        for (sprite in curList)
-        {
-          if (sprite.selected) sprite.confirm();
-        }
-      }
+      descToolTip.updateText("");
     }
   }
 
   function changeTitleChar(char:String):Void
+  {
+    if (!titleCharCache.exists(char))
     {
-      if (!titleCharCache.exists(char))
-      {
-        var graphic = FlxG.bitmap.add('assets/images/mainmenu/${char}.png');
-        graphic.persist = true;
-        titleCharCache.set(char, FlxAtlasFrames.fromSparrow(graphic, 'assets/images/mainmenu/${char}.xml'));
-      }
-
-      titleChar.frames = titleCharCache.get(char);
-      titleChar.animation.add('idle', [0]);
-      titleChar.animation.add('random', [1, 2, 3]);
-      titleChar.animation.play('idle', true);
+      var graphic = FlxG.bitmap.add('assets/images/mainmenu/${char}.png');
+      graphic.persist = true;
+      titleCharCache.set(char, FlxAtlasFrames.fromSparrow(graphic, 'assets/images/mainmenu/${char}.xml'));
     }
+
+    titleChar.frames = titleCharCache.get(char);
+    titleChar.animation.add('idle', [0]);
+    titleChar.animation.add('random', [1, 2, 3]);
+    titleChar.animation.play('idle', true);
+  }
+
+  function loadOptionPage(items:Array<OptionMenuItem>, isRoot:Bool = false):Void
+  {
+    inSubCategory = !isRoot;
+
+    optionsGroup.clear();
+    optionsInteractables = [];
+    resetHover();
+
+    for (item in items)
+    {
+      optionsGroup.add(item);
+      optionsInteractables.push(item);
+
+      item.visible = true;
+      item.alpha = 1;
+    }
+
+    optionsInteractables.push(backButton);
+
+    optionsGroup.arrangeItems();
+  }
+
+  function handleBackButton():Void
+  {
+    if (inSubCategory)
+    {
+      loadOptionPage(rootOptionItems, true);
+    }
+    else
+    {
+      toggleMenu(false);
+    }
+  }
+
+  function resetHover():Void
+  {
+    for (item in mainInteractables) item.selected = false;
+    for (item in optionsInteractables) item.selected = false;
+
+    selectArrow.visible = false;
+    descToolTip.updateText("");
+  }
 }

@@ -10,29 +10,29 @@ class OptionItemGroup extends FlxTypedSpriteGroup<BaseMenuItem>
     super(x, y);
   }
 
-  override function preAdd(sprite:BaseMenuItem):Void
+  // rip isDirty, sorry but you were breaking stuff
+
+  public function arrangeItems():Void
   {
-    dirty = true;
-    super.preAdd(sprite);
+    var y:Float = this.y;
+
+    for (sprite in group.members)
+    {
+      if (sprite == null) continue;
+
+      sprite.x = this.x;
+      sprite.y = y;
+
+      y += sprite.height + sprite.itemSpacing + 25;
+    }
   }
 
-  override public function update(elapsed:Float):Void
+  override public function add(sprite:BaseMenuItem):BaseMenuItem
   {
-    if (dirty)
-    {
-      var newY:Float = this.y;
+    var addedItem = super.add(sprite);
 
-      for (sprite in group.members)
-      {
-        sprite.x = this.x;
-        sprite.y = newY;
+    arrangeItems();
 
-        newY += sprite.height + sprite.itemSpacing + 25;
-      }
-
-      dirty = false;
-    }
-
-    super.update(elapsed);
+    return addedItem;
   }
 }
