@@ -1,0 +1,195 @@
+import hxp.*;
+import lime.tools.*;
+import sys.FileSystem;
+
+class Project extends HXProject
+{
+  /**
+   * The base title of the game.
+   */
+  static final TITLE:String = "HX-NAF";
+
+  /**
+   * The current version of the game.
+   * This should follow semantic versioning.
+   */
+  static final VERSION:String = "0.1.0";
+
+  /**
+   * The current build code.
+   * This is used by Mobile App Stores.
+   */
+  static final BUILD_NUMBER:Int = 1;
+
+  /**
+   * The file name of the main executable used for various platforms.
+   */
+  static final EXECUTABLE_NAME:String = "hxnaf";
+
+  /**
+   * Package name used for identifying the game behind the scenes.
+   */
+  static final PACKAGE_NAME:String = "app.baranmuzu.hxnaf";
+
+  /**
+   * The company name for the game.
+   */
+  static final COMPANY:String = "BaranMuzu";
+
+  public function new()
+  {
+    super();
+
+    setenv('HAXEPATH', './');
+    haxeflags.push('-dce no');
+
+    setupApplication();
+    setupDefines();
+    configureOutput();
+    addAssets();
+    addLibraries();
+  }
+
+  function setupApplication():Void
+  {
+    meta = {
+      buildNumber: Std.string(BUILD_NUMBER),
+      company: COMPANY,
+      packageName: PACKAGE_NAME,
+      title: TITLE,
+      version: VERSION
+    };
+
+    app = {
+      file: EXECUTABLE_NAME,
+      main: 'Main',
+      preloader: ''
+    }
+
+    window = {
+      width: 1280,
+      height: 720,
+      background: 0xFF000000,
+      fps: 60,
+      hardware: true,
+      resizable: true,
+      vsync: false,
+      allowHighDPI: true,
+      orientation: Orientation.LANDSCAPE,
+      fullscreen: false
+    }
+
+    switch (platformType)
+    {
+      case PlatformType.MOBILE:
+        window.width = 0;
+        window.height = 0;
+        window.resizable = false;
+        window.fullscreen = true;
+        window.borderless = true;
+
+      case PlatformType.WEB:
+        window.orientation = null;
+
+      default:
+    }
+
+    sources.push('source');
+  }
+
+  function setupDefines():Void
+  {
+    // Enable OpenFL Crash Handler
+    setHaxedef("openfl-enable-handle-error");
+
+    // Speeds up compilation.
+    setHaxedef("lime_disable_assets_version");
+
+    // Stack trace tracking, great for debugging.
+    setHaxedef("HXCPP_CHECK_POINTER");
+    setHaxedef("HXCPP_STACK_LINE");
+    setHaxedef("HXCPP_STACK_TRACE");
+    setHaxedef("hscriptPos");
+
+    // Remove the Focus Lost Screen.
+    setHaxedef("FLX_NO_FOCUS_LOST_SCREEN");
+
+    if (!debug)
+    {
+      // Disable HaxeFlixel debugger.
+      setHaxedef("FLX_NO_DEBUG");
+
+      // Optimize Haxe Code.
+      setHaxedef("analyzer-optimize");
+    }
+
+    // Clean compiler errors.
+    setHaxedef("message.reporting", "pretty");
+  }
+
+  function configureOutput():Void
+  {
+    var buildDir:String = 'export/';
+    buildDir += debug ? 'debug' : 'release';
+    buildDir += '/';
+
+    app.path = buildDir;
+  }
+
+  function addAssets():Void
+  {
+    for (data in [
+      {name: 'default', paths: ['assets'], preload: true}
+    ])
+    {
+      var library:Library = new Library('', data.name, null, false, data.preload);
+      libraries.push(library);
+
+      var lookingPaths:Array<String> = data.paths.copy();
+      while (lookingPaths.length > 0)
+      {
+        final path:Null<String> = lookingPaths.shift();
+        if (path == null) continue;
+
+        for (file in FileSystem.readDirectory(path))
+        {
+          final fullPath:String = '$path/$file';
+
+          if (FileSystem.isDirectory(fullPath))
+          {
+            lookingPaths.push(fullPath);
+            continue;
+          }
+
+          var asset:Asset = new Asset(fullPath, '', null, false, true);
+          asset.library = data.name;
+          // still need to add delivery pack...
+          assets.push(asset);
+        }
+      }
+    }
+  }
+
+  function addLibraries():Void
+  {
+    haxelibs.push(new Haxelib('lime', 'git'));
+    haxelibs.push(new Haxelib('openfl', 'git'));
+    haxelibs.push(new Haxelib('flixel', 'git'));
+
+    if (defines.exists("cpp") && debug)
+    {
+      haxelibs.push(new Haxelib('hxcpp-debug-server', '1.2.4'));
+    }
+  }
+
+  // ----------------
+  // HELPER FUNCTIONS
+  // ----------------
+
+  function setHaxedef(name:String, ?value:String):Void
+  {
+    if (value == null) value = "";
+
+    haxedefs.set(name, value);
+  }
+}
