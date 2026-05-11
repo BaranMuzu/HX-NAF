@@ -20,3 +20,7 @@ import hxnaf.util.ClickteamUtil;
 
 using Lambda;
 using StringTools;
+
+#if cpp
+import hxnaf.util.DiscordUtil;
+#end

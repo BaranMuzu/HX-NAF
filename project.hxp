@@ -176,6 +176,11 @@ class Project extends HXProject
     haxelibs.push(new Haxelib('openfl', 'git'));
     haxelibs.push(new Haxelib('flixel', 'git'));
 
+    if (defines.exists("cpp") || platformType == PlatformType.DESKTOP)
+    {
+      haxelibs.push(new Haxelib('hxdiscord_rpc'));
+    }
+
     if (defines.exists("cpp") && debug)
     {
       haxelibs.push(new Haxelib('hxcpp-debug-server', '1.2.4'));
