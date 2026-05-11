@@ -21,7 +21,6 @@ class TitleState extends FlxState
   public var gameTitle:FlxSprite;
   public var selectArrow:FlxSprite;
   public var descToolTip:DescriptionToolTip;
-
   /**
    * Menus & Buttons
    */
@@ -29,25 +28,21 @@ class TitleState extends FlxState
   public var optionsGroup:OptionItemGroup;
   public var optionsButton:BaseMenuItem;
   public var backButton:BaseMenuItem;
-
   /**
    * Clickables (Mouse stuff)
    */
   public var mainInteractables:Array<BaseMenuItem> = [];
   public var optionsInteractables:Array<BaseMenuItem> = [];
   var rootOptionItems:Array<OptionMenuItem> = [];
-
   /**
    * Menu States (Where is the player?)
    */
   var inOptionsMenu:Bool = false;
   var inSubCategory:Bool = false;
-
   /**
    * Sounds
    */
   var ItemSelectSound:FlxSound = FlxG.sound.load('assets/sounds/blip3.ogg');
-
   /**
    * Timers & Background Magic
    */
@@ -209,18 +204,39 @@ class TitleState extends FlxState
     optionsGroup = new OptionItemGroup(150, 400);
     add(optionsGroup);
     optionsGroup.visible = false;
-
-    var boolTest1 = new CheckboxOptionItem('boolTest', 'Evil Mode', 'Dexter 1', false);
-    var valueTest1 = new NumberOptionItem('numTest', 'Volume', 'num test 1 haha', 0, 100, 50, 10);
-    var valueTest2 = new ValueOptionItem('strTest', 'Evilness', 'wtf is this!!', ['Normal', 'Evil', 'TRUE EVIL'], 1);
-
-    var gameplayCat = new CategoryOptionItem('catGame', 'Gameplay', 'Gameplay Settings', [boolTest1, valueTest2]);
-    var audioCat = new CategoryOptionItem('catAudio', 'Audio', 'Audio Settings', [valueTest1]);
-
-    gameplayCat.setConfirmCallback(() -> loadOptionPage(gameplayCat.children));
+    /**
+     * Visual Options
+     */
+    var fullscreen = new CheckboxOptionItem('fullscreen', 'Fullscreen', 'Toggle between windowed and fullscreen mode.', false);
+    var staticInt = new NumberOptionItem('staticInt', 'Static Intensity', 'Adjust the level of static noise on the cameras.', 0, 100, 50, 1);
+    var flashLights = new CheckboxOptionItem('flashLights', 'Flashing Lights', 'Enable or disable flashing light effects.', true);
+    /**
+     * Audio Options
+     */
+    var masterVol = new NumberOptionItem('masterVol', 'Master Volume', 'Adjust the overall game volume.', 0, 100, 80, 1);
+    var jumpVol = new NumberOptionItem('jumpVol', 'Jumpscare Volume', 'Adjust the volume of jumpscare sound effects.', 0, 100, 100, 1);
+    var ambVol = new NumberOptionItem('ambVol', 'Ambience Volume', 'Adjust the volume of background office ambience.', 0, 100, 60, 1);
+    /**
+     * Gameplay Options
+     */
+    var subs = new CheckboxOptionItem('subtitles', 'Subtitles', 'Show or hide subtitles for the dialogue.', true);
+    var tips = new CheckboxOptionItem('tips', 'Death Tips', 'Show or hide helpful tips on the game over screen.', true);
+    /**
+     * Categories
+     */
+    var visualCat = new CategoryOptionItem('catVisual', 'Visuals', 'Graphics and visual effect settings.', [fullscreen, staticInt, flashLights]);
+    var audioCat = new CategoryOptionItem('catAudio', 'Audio', 'Sound and music volume settings.', [masterVol, jumpVol, ambVol]);
+    var gameplayCat = new CategoryOptionItem('catGame', 'Gameplay', 'General gameplay and accessibility settings.', [subs, tips]);
+    /**
+     * Callbacks
+     */
+    visualCat.setConfirmCallback(() -> loadOptionPage(visualCat.children));
     audioCat.setConfirmCallback(() -> loadOptionPage(audioCat.children));
-
-    rootOptionItems = [gameplayCat, audioCat];
+    gameplayCat.setConfirmCallback(() -> loadOptionPage(gameplayCat.children));
+    /**
+     * Last Stuff
+     */
+    rootOptionItems = [visualCat, audioCat, gameplayCat];
 
     backButton = new BaseMenuItem('back', 'Back');
     backButton.setPosition(FlxG.width - backButton.width - 30, 30);
@@ -252,7 +268,7 @@ class TitleState extends FlxState
     backButton.visible = inOptionsMenu;
 
     selectArrow.visible = false;
-    
+
     if (!inOptionsMenu)
     {
       descToolTip.updateText("");

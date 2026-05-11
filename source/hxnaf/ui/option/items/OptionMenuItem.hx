@@ -14,6 +14,12 @@ class OptionMenuItem extends BaseMenuItem
     this.description = description;
     optionFont = FlxBitmapFont.fromAngelCode('assets/images/mainmenu/texts/consolas.png', 'assets/images/mainmenu/texts/consolas.fnt');
   }
+
+  function alignItem(valueLabel:FlxBitmapText):Void
+  {
+    valueLabel.x = this.x + this.width + 40;
+    valueLabel.y = this.y + (this.height / 2) - (valueLabel.height / 2);
+  }
 }
 
 class CheckboxOptionItem extends OptionMenuItem
@@ -25,19 +31,19 @@ class CheckboxOptionItem extends OptionMenuItem
   public function new(id:String, text:String, description:String = "", defaultValue:Bool = false)
   {
     super(id, text, description);
-    this.isChecked = defaultValue;
-
     stateText = new FlxBitmapText(optionFont);
-    stateText.text = isChecked ? "[X]" : "[ ]";
-    stateText.updateHitbox();
+    this.isChecked = defaultValue;
+  }
+
+  override public function update(elapsed:Float):Void
+  {
+    super.update(elapsed);
+    if (selected && FlxG.mouse.wheel != 0) isChecked = !isChecked;
   }
 
   override public function draw():Void
   {
-    stateText.setPosition(this.x + 300, this.y + (this.height / 2) - (stateText.height / 2));
-    stateText.scrollFactor.copyFrom(this.scrollFactor);
-    stateText.cameras = this.cameras;
-
+    alignItem(stateText);
     super.draw();
     stateText.draw();
   }
@@ -50,25 +56,22 @@ class CheckboxOptionItem extends OptionMenuItem
 
   function set_isChecked(value:Bool):Bool
   {
-    if (isChecked == value) return isChecked;
-
     isChecked = value;
-
     if (stateText != null)
     {
       stateText.text = isChecked ? "[X]" : "[ ]";
       stateText.updateHitbox();
     }
-
     return isChecked;
   }
 }
 
 class ValueOptionItem extends OptionMenuItem
 {
-  public var valueText:FlxBitmapText;
   public var options:Array<String>;
   public var curIndex:Int = 0;
+
+  var valueText:FlxBitmapText;
 
   public function new(id:String, text:String, description:String = "", options:Array<String>, defaultIndex:Int = 0)
   {
@@ -77,27 +80,44 @@ class ValueOptionItem extends OptionMenuItem
     this.curIndex = defaultIndex;
 
     valueText = new FlxBitmapText(optionFont);
-    valueText.text = options[curIndex];
-    valueText.updateHitbox();
+    updateDisplay();
+  }
+
+  override public function update(elapsed:Float):Void
+  {
+    super.update(elapsed);
+
+    if (selected && FlxG.mouse.wheel != 0)
+    {
+      changeIndex(FlxG.mouse.wheel > 0 ? -1 : 1);
+    }
   }
 
   override public function draw():Void
   {
-    valueText.setPosition(this.x + 300, this.y + (this.height / 2) - (valueText.height / 2));
-    valueText.scrollFactor.copyFrom(this.scrollFactor);
-    valueText.cameras = this.cameras;
-
+    alignItem(valueText);
     super.draw();
     valueText.draw();
   }
 
   override public function confirm():Void
   {
-    curIndex = (curIndex + 1) % options.length;
+    changeIndex(1);
+    super.confirm();
+  }
+
+  function changeIndex(dir:Int):Void
+  {
+    curIndex += dir;
+    if (curIndex >= options.length) curIndex = 0;
+    if (curIndex < 0) curIndex = options.length - 1;
+    updateDisplay();
+  }
+
+  function updateDisplay():Void
+  {
     valueText.text = options[curIndex];
     valueText.updateHitbox();
-
-    super.confirm();
   }
 }
 
@@ -119,28 +139,45 @@ class NumberOptionItem extends OptionMenuItem
     this.step = step;
 
     valueText = new FlxBitmapText(optionFont);
-    valueText.text = Std.string(curValue);
-    valueText.updateHitbox();
+    updateDisplay();
+  }
+
+  override public function update(elapsed:Float):Void
+  {
+    super.update(elapsed);
+
+    if (selected && FlxG.mouse.wheel != 0)
+    {
+      changeValue(FlxG.mouse.wheel > 0 ? step : -step);
+    }
   }
 
   override public function draw():Void
   {
-    valueText.setPosition(this.x + 300, this.y + (this.height / 2) - (valueText.height / 2));
-    valueText.scrollFactor.copyFrom(this.scrollFactor);
-    valueText.cameras = this.cameras;
-
+    alignItem(valueText);
     super.draw();
     valueText.draw();
   }
 
   override public function confirm():Void
   {
-    curValue += step;
-    if (curValue > maxValue) curValue = minValue;
+    changeValue(step);
+    super.confirm();
+  }
 
+  function changeValue(dir:Int):Void
+  {
+    curValue += dir;
+
+    if (curValue > maxValue) curValue = maxValue;
+    if (curValue < minValue) curValue = minValue;
+
+    updateDisplay();
+  }
+
+  function updateDisplay():Void
+  {
     valueText.text = Std.string(curValue);
     valueText.updateHitbox();
-
-    super.confirm();
   }
 }
