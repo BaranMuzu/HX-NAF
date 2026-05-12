@@ -17,24 +17,25 @@ class DiscordUtil
    */
   public static function initialize():Void
   {
-    var jsonPath = "assets/data/config/discord.json";
+    var discordConfigPath = "assets/data/config/discord.json";
 
-    if (Assets.exists(jsonPath))
+    if (Assets.exists(discordConfigPath))
     {
-      var rawText = Assets.getText(jsonPath);
+      var discordConfigData = Assets.getText(discordConfigPath);
 
-      if (rawText != null && StringTools.trim(rawText) != "")
+      if (discordConfigData != null && StringTools.trim(discordConfigData) != "")
       {
         try
         {
-          var data:Dynamic = Json.parse(rawText);
-          clientID = data.clientID;
-          defaultLargeImage = data.largeImageKey;
-          defaultLargeText = data.largeImageText;
+          var data:Dynamic = Json.parse(discordConfigData);
+
+          clientID = data.application.clientID;
+          defaultLargeImage = data.application.assets.largeImageKey;
+          defaultLargeText = data.application.assets.largeImageText;
         }
         catch (e:Dynamic)
         {
-          trace("Discord JSON Error: " + e);
+          trace("[Discord RPC] Failed to parse config JSON: " + e);
           return;
         }
       }
@@ -63,17 +64,20 @@ class DiscordUtil
    * Updates the "Rich Presence" status shown on the Discord profile.
    * @param details The top line of the status (e.g., "Main Menu" or "Night 1").
    * @param state The bottom line of the status (e.g., "Har Har Har xd" or "02:00 AM").
+   * @param largeImageKey The key name for the LARGE icon. If empty, uses the JSON default (Optional).
+   * @param largeImageText The text for the LARGE icon. If empty, uses the JSON default (Optional).
    * @param smallImageKey The key name for the small icon (Optional).
    * @param smallImageText The text that appears when hovering over the small icon (Optional).
    */
-  public static function changePresence(details:String, state:String, ?smallImageKey:String, ?smallImageText:String):Void
+  public static function changePresence(details:String, state:String, ?largeImageKey:String, ?largeImageText:String, ?smallImageKey:String,
+      ?smallImageText:String):Void
   {
     var discordPresence:DiscordRichPresence = new DiscordRichPresence();
 
     discordPresence.state = state;
     discordPresence.details = details;
-    discordPresence.largeImageKey = defaultLargeImage;
-    discordPresence.largeImageText = defaultLargeText;
+    discordPresence.largeImageKey = (largeImageKey != null) ? largeImageKey : defaultLargeImage;
+    discordPresence.largeImageText = (largeImageText != null) ? largeImageText : defaultLargeText;
 
     if (smallImageKey != null) discordPresence.smallImageKey = smallImageKey;
     if (smallImageText != null) discordPresence.smallImageText = smallImageText;
@@ -90,7 +94,7 @@ class DiscordUtil
     var discriminator:String = cast(request[0].discriminator, String);
     var userTag = (discriminator != null && discriminator != "0" && discriminator != "0000") ? '#$discriminator' : '';
 
-    trace('Discord RPC Connected. User: $username$userTag');
+    trace('[Discord RPC] Connected successfully! (User: $username$userTag)');
   }
 
   /**
@@ -100,7 +104,7 @@ class DiscordUtil
    */
   static function onError(_code:Int, _message:cpp.ConstCharStar):Void
   {
-    trace("Discord Error: " + _code);
+    trace("[Discord RPC] Error -> Code: " + _code);
   }
 
   /**
@@ -110,6 +114,6 @@ class DiscordUtil
    */
   static function onDisconnected(_code:Int, _message:cpp.ConstCharStar):Void
   {
-    trace("Discord Disconnected: " + _code);
+    trace("[Discord RPC] Disconnected -> Code: " + _code);
   }
 }

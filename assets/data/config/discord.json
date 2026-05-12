@@ -1,5 +1,11 @@
 {
-  "clientID": "1503502024677785791",
-  "largeImageKey": "icon",
-  "largeImageText": "Har"
+  "application": {
+    "clientID": "1503502024677785791",
+    "assets": {
+      "largeImageKey": "icon",
+      "largeImageText": "Har",
+      "smallImageKey": "",
+      "smallImageText": ""
+    }
+  }
 }
