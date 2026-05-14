@@ -17,36 +17,47 @@ class TitleState extends FlxState
    * UI & Visuals
    */
   public var titleChar:FlxSprite;
+
   public var menuStatic:FlxSprite;
   public var gameTitle:FlxSprite;
   public var selectArrow:FlxSprite;
   public var descToolTip:DescriptionToolTip;
+
   /**
    * Menus & Buttons
    */
   public var menuItems:MenuItemGroup;
+
   public var optionsGroup:OptionItemGroup;
   public var optionsButton:BaseMenuItem;
   public var backButton:BaseMenuItem;
+
   /**
    * Clickables (Mouse stuff)
    */
   public var mainInteractables:Array<BaseMenuItem> = [];
+
   public var optionsInteractables:Array<BaseMenuItem> = [];
+
   var rootOptionItems:Array<OptionMenuItem> = [];
+
   /**
    * Menu States (Where is the player?)
    */
   var inOptionsMenu:Bool = false;
+
   var inSubCategory:Bool = false;
+
   /**
    * Sounds
    */
   var ItemSelectSound:FlxSound = FlxG.sound.load('assets/sounds/blip3.ogg');
+
   /**
    * Timers & Background Magic
    */
   var staticTimer:FlxTimer;
+
   var titleCharTweakTimer:FlxTimer;
   var titleCharAlphaTimer:FlxTimer;
   var titleCharCache:Map<String, FlxAtlasFrames> = new Map();
@@ -128,6 +139,7 @@ class TitleState extends FlxState
     initOptionItems();
 
     super.create();
+    DiscordUtil.changePresence("Main Menu", "Ready for Freddy");
     persistentUpdate = true;
   }
 

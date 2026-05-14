@@ -8,10 +8,8 @@ class InitState extends FlxState
   {
     super.create();
 
-    #if cpp
-    DiscordUtil.initialize();
-    DiscordUtil.changePresence("Test 1", "Getting ready for Freddy");
-    #end
+    DiscordUtil.initialize(); 
+    DiscordUtil.changePresence("Entering", "Getting ready for Freddy");
 
     FlxG.switchState(() -> new WarningState());
   }

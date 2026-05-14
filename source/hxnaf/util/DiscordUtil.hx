@@ -2,8 +2,10 @@ package hxnaf.util;
 
 import Sys;
 import haxe.Json;
+#if cpp
 import hxdiscord_rpc.Discord;
 import hxdiscord_rpc.Types;
+#end
 import openfl.Assets;
 
 class DiscordUtil
@@ -17,6 +19,7 @@ class DiscordUtil
    */
   public static function initialize():Void
   {
+    #if cpp
     var discordConfigPath = "assets/data/config/discord.json";
 
     if (Assets.exists(discordConfigPath))
@@ -58,6 +61,7 @@ class DiscordUtil
         Sys.sleep(2);
       }
     });
+    #end
   }
 
   /**
@@ -72,6 +76,7 @@ class DiscordUtil
   public static function changePresence(details:String, state:String, ?largeImageKey:String, ?largeImageText:String, ?smallImageKey:String,
       ?smallImageText:String):Void
   {
+    #if cpp
     var discordPresence:DiscordRichPresence = new DiscordRichPresence();
 
     discordPresence.state = state;
@@ -83,8 +88,10 @@ class DiscordUtil
     if (smallImageText != null) discordPresence.smallImageText = smallImageText;
 
     Discord.UpdatePresence(cpp.RawPointer.addressOf(discordPresence));
+    #end
   }
 
+  #if cpp
   /**
    * Triggered when the connection to Discord is successfully.. ready.
    */
@@ -116,4 +123,5 @@ class DiscordUtil
   {
     trace("[Discord RPC] Disconnected -> Code: " + _code);
   }
+  #end
 }
